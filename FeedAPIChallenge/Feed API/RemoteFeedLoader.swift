@@ -28,9 +28,11 @@ public final class RemoteFeedLoader: FeedLoader {
 					return
 				}
 
-				_ = try JSONDecoder().decode(FeedItemsResponse.self, from: successResult.0)
+				let response = try JSONDecoder().decode(FeedItemsResponse.self, from: successResult.0)
+				let items = response.items.map(FeedImage.init)
 
-				completion(.success([]))
+				completion(.success(items))
+
 			} catch is DecodingError {
 				completion(.failure(Error.invalidData))
 			} catch {
@@ -57,5 +59,14 @@ extension FeedItemsResponse: Codable {
 			case imageLocation = "image_loc"
 			case imageURL = "image_url"
 		}
+	}
+}
+
+private extension FeedImage {
+	init(with image: FeedItemsResponse.FeedImageDTO) {
+		id = image.imageId
+		description = image.imageDescription
+		location = image.imageLocation
+		url = image.imageURL
 	}
 }
