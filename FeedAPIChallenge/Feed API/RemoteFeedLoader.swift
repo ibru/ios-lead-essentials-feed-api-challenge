@@ -28,18 +28,17 @@ public final class RemoteFeedLoader: FeedLoader {
 			}
 
 			do {
-				let successResult = try result.get()
+				let (data, urlResponse) = try result.get()
 
-				guard successResult.1.statusCode == 200 else {
-					completionResult = .failure(Error.invalidData)
-					return
-				}
+				guard urlResponse.statusCode == 200 else { throw Error.invalidData }
 
-				let response = try JSONDecoder().decode(FeedItemsResponse.self, from: successResult.0)
-				let items = response.items.map(FeedImage.init)
+				let feedResponse = try JSONDecoder().decode(FeedItemsResponse.self, from: data)
+				let items = feedResponse.items.map(FeedImage.init)
 
 				completionResult = .success(items)
 
+			} catch let error as Error {
+				completionResult = .failure(error)
 			} catch is DecodingError {
 				completionResult = .failure(Error.invalidData)
 			} catch {
