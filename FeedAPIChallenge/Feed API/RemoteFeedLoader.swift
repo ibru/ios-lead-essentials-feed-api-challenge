@@ -28,7 +28,7 @@ public final class RemoteFeedLoader: FeedLoader {
 					return
 				}
 
-				_ = try JSONDecoder().decode([String: [[String]]].self, from: successResult.0)
+				_ = try JSONDecoder().decode(FeedItemsResponse.self, from: successResult.0)
 
 				completion(.success([]))
 			} catch is DecodingError {
@@ -37,5 +37,25 @@ public final class RemoteFeedLoader: FeedLoader {
 				completion(.failure(Error.connectivity))
 			}
 		})
+	}
+}
+
+private struct FeedItemsResponse {
+	let items: [FeedImageDTO]
+}
+
+extension FeedItemsResponse: Codable {
+	struct FeedImageDTO: Codable {
+		let imageId: UUID
+		let imageDescription: String?
+		let imageLocation: String?
+		let imageURL: URL
+
+		enum CodingKeys: String, CodingKey {
+			case imageId = "image_id"
+			case imageDescription = "image_desc"
+			case imageLocation = "image_loc"
+			case imageURL = "image_url"
+		}
 	}
 }
