@@ -22,23 +22,28 @@ public final class RemoteFeedLoader: FeedLoader {
 		client.get(from: url, completion: { [weak self] result in
 			guard self != nil else { return }
 
+			var completionResult: FeedLoader.Result = .failure(Error.invalidData)
+			defer {
+				completion(completionResult)
+			}
+
 			do {
 				let successResult = try result.get()
 
 				guard successResult.1.statusCode == 200 else {
-					completion(.failure(Error.invalidData))
+					completionResult = .failure(Error.invalidData)
 					return
 				}
 
 				let response = try JSONDecoder().decode(FeedItemsResponse.self, from: successResult.0)
 				let items = response.items.map(FeedImage.init)
 
-				completion(.success(items))
+				completionResult = .success(items)
 
 			} catch is DecodingError {
-				completion(.failure(Error.invalidData))
+				completionResult = .failure(Error.invalidData)
 			} catch {
-				completion(.failure(Error.connectivity))
+				completionResult = .failure(Error.connectivity)
 			}
 		})
 	}
