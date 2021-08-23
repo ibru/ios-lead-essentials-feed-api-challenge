@@ -20,30 +20,33 @@ public final class RemoteFeedLoader: FeedLoader {
 
 	public func load(completion: @escaping (FeedLoader.Result) -> Void) {
 		client.get(from: url, completion: { [weak self] result in
-			guard self != nil else { return }
+			guard let self = self else { return }
 
 			let completionResult: FeedLoader.Result
 
 			do {
 				let (data, urlResponse) = try result.get()
-
-				guard urlResponse.statusCode == 200 else { throw Error.invalidData }
-
-				let feedResponse = try JSONDecoder().decode(FeedItemsResponse.self, from: data)
-				let items = feedResponse.items.map(FeedImage.init)
-
-				completionResult = .success(items)
-
-			} catch let error as Error {
-				completionResult = .failure(error)
-			} catch is DecodingError {
-				completionResult = .failure(Error.invalidData)
+				completionResult = self.parse(response: urlResponse, having: data)
 			} catch {
 				completionResult = .failure(Error.connectivity)
 			}
 
 			completion(completionResult)
 		})
+	}
+}
+
+private extension RemoteFeedLoader {
+	func parse(response urlResponse: HTTPURLResponse, having data: Data) -> FeedLoader.Result {
+		guard
+			urlResponse.statusCode == 200,
+			let feedResponse = try? JSONDecoder().decode(FeedItemsResponse.self, from: data)
+		else {
+			return .failure(Error.invalidData)
+		}
+
+		let items = feedResponse.items.map(FeedImage.init)
+		return .success(items)
 	}
 }
 
