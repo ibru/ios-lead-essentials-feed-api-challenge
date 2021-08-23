@@ -22,10 +22,7 @@ public final class RemoteFeedLoader: FeedLoader {
 		client.get(from: url, completion: { [weak self] result in
 			guard self != nil else { return }
 
-			var completionResult: FeedLoader.Result = .failure(Error.invalidData)
-			defer {
-				completion(completionResult)
-			}
+			let completionResult: FeedLoader.Result
 
 			do {
 				let (data, urlResponse) = try result.get()
@@ -44,6 +41,8 @@ public final class RemoteFeedLoader: FeedLoader {
 			} catch {
 				completionResult = .failure(Error.connectivity)
 			}
+
+			completion(completionResult)
 		})
 	}
 }
