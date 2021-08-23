@@ -52,8 +52,8 @@ private struct FeedItemsResponse {
 	let items: [FeedImageDTO]
 }
 
-extension FeedItemsResponse: Codable {
-	struct FeedImageDTO: Codable {
+extension FeedItemsResponse: Decodable {
+	struct FeedImageDTO: Decodable {
 		let imageId: UUID
 		let imageDescription: String?
 		let imageLocation: String?
