@@ -54,25 +54,18 @@ private struct FeedItemsResponse {
 
 extension FeedItemsResponse: Decodable {
 	struct FeedImageDTO: Decodable {
-		let imageId: UUID
-		let imageDescription: String?
-		let imageLocation: String?
-		let imageURL: URL
-
-		enum CodingKeys: String, CodingKey {
-			case imageId = "image_id"
-			case imageDescription = "image_desc"
-			case imageLocation = "image_loc"
-			case imageURL = "image_url"
-		}
+		let image_id: UUID
+		let image_desc: String?
+		let image_loc: String?
+		let image_url: URL
 	}
 }
 
 private extension FeedImage {
 	init(with image: FeedItemsResponse.FeedImageDTO) {
-		id = image.imageId
-		description = image.imageDescription
-		location = image.imageLocation
-		url = image.imageURL
+		id = image.image_id
+		description = image.image_desc
+		location = image.image_loc
+		url = image.image_url
 	}
 }
